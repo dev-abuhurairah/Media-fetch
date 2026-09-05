@@ -35,7 +35,7 @@ class YouTubeProvider @Inject constructor(
         return canHandle(url) && urlPattern.matcher(url.trim()).find()
     }
 
-    override fun extractMedia(url: String): Result<MediaInfo> = withContext(Dispatchers.IO) {
+    override suspend fun extractMedia(url: String): Result<MediaInfo> = withContext(Dispatchers.IO) {
         if (!validateUrl(url)) {
             return@withContext Result.Error(DataError.Media.INVALID_URL_FORMAT)
         }
