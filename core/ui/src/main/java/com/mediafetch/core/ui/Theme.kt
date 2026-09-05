@@ -12,10 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = BrandPrimaryLight,
-    onPrimary = Color.White,
-    primaryContainer = BrandPrimary.copy(alpha = 0.2f),
-    onPrimaryContainer = BrandPrimaryLight,
+    primary = SnapYellow,
+    onPrimary = Color(0xFF101217),
+    primaryContainer = SnapYellowContainer,
+    onPrimaryContainer = SnapYellowLight,
     secondary = BrandSecondary,
     onSecondary = Color.Black,
     background = DarkBackground,
@@ -30,10 +30,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = BrandPrimary,
-    onPrimary = Color.White,
-    primaryContainer = BrandPrimary.copy(alpha = 0.12f),
-    onPrimaryContainer = BrandPrimary,
+    primary = SnapYellowDark,
+    onPrimary = Color.Black,
+    primaryContainer = Color(0x20FFB800),
+    onPrimaryContainer = Color(0xFF7A5200),
     secondary = BrandSecondary,
     onSecondary = Color.White,
     background = LightBackground,
@@ -50,7 +50,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun MediaFetchTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

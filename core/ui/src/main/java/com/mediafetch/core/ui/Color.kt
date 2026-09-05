@@ -2,29 +2,39 @@ package com.mediafetch.core.ui
 
 import androidx.compose.ui.graphics.Color
 
-// Premium Modern Dark Palette (Deep Neutral, High Contrast, Vibrant Accents)
-val DarkBackground = Color(0xFF0F1117)
-val DarkSurface = Color(0xFF161922)
-val DarkSurfaceVariant = Color(0xFF222634)
-val DarkBorder = Color(0xFF2E3446)
+// Iconic SnapTube Amber/Gold & Obsidian Palette
+val SnapYellow = Color(0xFFFFB800)          // Signature SnapTube Warm Amber
+val SnapYellowLight = Color(0xFFFFD54F)     // Lighter Gold Accent
+val SnapYellowDark = Color(0xFFE5A600)      // Deep Amber Gold
+val SnapYellowContainer = Color(0x33FFB800) // Translucent amber glow container
+val SnapYellowGlow = Color(0x66FFB800)
 
-// Accent Colors
-val BrandPrimary = Color(0xFF6366F1) // Indigo 500
-val BrandPrimaryLight = Color(0xFF818CF8)
-val BrandSecondary = Color(0xFF06B6D4) // Cyan 500
-val BrandAccent = Color(0xFF10B981) // Emerald 500
+// Brand Color Aliases (maintaining full compatibility)
+val BrandPrimary = SnapYellow
+val BrandPrimaryLight = SnapYellowLight
+val BrandSecondary = Color(0xFFFF9500)
+val BrandAccent = Color(0xFF10B981)
 
-// Light Palette
-val LightBackground = Color(0xFFF8FAFC)
+// Obsidian & Deep Charcoal Surfaces (SnapTube Dark Mode)
+val DarkBackground = Color(0xFF0B0D12)      // Deep sleek black-charcoal
+val DarkSurface = Color(0xFF14171F)         // Card & Dock Surface
+val DarkSurfaceVariant = Color(0xFF1D222E)  // Input fields & Pills
+val DarkBorder = Color(0xFF282E3E)          // Subtle outlines
+
+// Light Mode Surfaces (Clean & Bright with Amber Accent)
+val LightBackground = Color(0xFFF7F8FA)
 val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceVariant = Color(0xFFF1F5F9)
-val LightBorder = Color(0xFFE2E8F0)
+val LightSurfaceVariant = Color(0xFFEEF1F6)
+val LightBorder = Color(0xFFDDE2EC)
 
 // Platform Branding
-val PlatformTikTok = Color(0xFF000000)
+val PlatformTikTok = Color(0xFF010101)
 val PlatformInstagram = Color(0xFFE1306C)
 val PlatformYouTube = Color(0xFFFF0000)
 val PlatformFacebook = Color(0xFF1877F2)
+val PlatformMusic = Color(0xFFFF9500)
+val PlatformTwitter = Color(0xFF1DA1F2)
+val PlatformPinterest = Color(0xFFE60023)
 
 // Status Colors
 val StatusSuccess = Color(0xFF10B981)

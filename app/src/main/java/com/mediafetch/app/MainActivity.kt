@@ -22,9 +22,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.mediafetch.core.database.DownloadDao
+import com.mediafetch.core.model.DownloadState
 import com.mediafetch.core.security.SecurityPreferences
 import com.mediafetch.core.security.UrlValidator
 import com.mediafetch.core.ui.MediaFetchTheme
+import com.mediafetch.core.ui.ModernFloatingBottomBar
+import com.mediafetch.core.ui.NavigationItem
 import com.mediafetch.feature.analyzer.AnalyzerBottomSheet
 import com.mediafetch.feature.analyzer.AnalyzerViewModel
 import com.mediafetch.feature.downloads.DownloadsScreen
@@ -52,6 +56,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var securityPreferences: SecurityPreferences
 
+    @Inject
+    lateinit var downloadDao: DownloadDao
+
     private var sharedUrlToAnalyze by mutableStateOf<String?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +69,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val themeMode by securityPreferences.themeMode.collectAsState(initial = "SYSTEM")
-            val isDynamicColor by securityPreferences.isDynamicColorEnabled.collectAsState(initial = true)
+            val isDynamicColor by securityPreferences.isDynamicColorEnabled.collectAsState(initial = false)
 
             val isDark = when (themeMode) {
                 "DARK" -> true
@@ -78,48 +85,58 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
-                val items = listOf(
-                    Screen.Home,
-                    Screen.Downloads,
-                    Screen.Library,
-                    Screen.Settings
-                )
+                val allDownloads by downloadDao.getAllDownloads().collectAsState(initial = emptyList())
+                val activeDownloadsCount = remember(allDownloads) {
+                    allDownloads.count { it.state == DownloadState.DOWNLOADING || it.state == DownloadState.QUEUED }
+                }
+
+                val navItems = remember(activeDownloadsCount) {
+                    listOf(
+                        NavigationItem(
+                            route = Screen.Home.route,
+                            title = Screen.Home.title,
+                            icon = Screen.Home.icon,
+                            selectedIcon = Screen.Home.selectedIcon
+                        ),
+                        NavigationItem(
+                            route = Screen.Downloads.route,
+                            title = Screen.Downloads.title,
+                            icon = Screen.Downloads.icon,
+                            selectedIcon = Screen.Downloads.selectedIcon,
+                            badgeCount = activeDownloadsCount
+                        ),
+                        NavigationItem(
+                            route = Screen.Library.route,
+                            title = Screen.Library.title,
+                            icon = Screen.Library.icon,
+                            selectedIcon = Screen.Library.selectedIcon
+                        ),
+                        NavigationItem(
+                            route = Screen.Settings.route,
+                            title = Screen.Settings.title,
+                            icon = Screen.Settings.icon,
+                            selectedIcon = Screen.Settings.selectedIcon
+                        )
+                    )
+                }
 
                 Scaffold(
                     bottomBar = {
-                        NavigationBar(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            tonalElevation = NavigationBarDefaults.Elevation
-                        ) {
-                            items.forEach { screen ->
-                                val isSelected = currentRoute == screen.route
-                                NavigationBarItem(
-                                    icon = {
-                                        Icon(
-                                            imageVector = if (isSelected) screen.selectedIcon else screen.icon,
-                                            contentDescription = screen.title
-                                        )
-                                    },
-                                    label = { Text(screen.title) },
-                                    selected = isSelected,
-                                    onClick = {
-                                        if (currentRoute != screen.route) {
-                                            navController.navigate(screen.route) {
-                                                popUpTo(navController.graph.findStartDestination().id) {
-                                                    saveState = true
-                                                }
-                                                launchSingleTop = true
-                                                restoreState = true
-                                            }
+                        ModernFloatingBottomBar(
+                            items = navItems,
+                            currentRoute = currentRoute,
+                            onItemClick = { item ->
+                                if (currentRoute != item.route) {
+                                    navController.navigate(item.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
                                         }
-                                    },
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                                        indicatorColor = MaterialTheme.colorScheme.primaryContainer
-                                    )
-                                )
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
                             }
-                        }
+                        )
                     }
                 ) { paddingValues ->
                     NavHost(

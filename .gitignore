@@ -24,3 +24,8 @@ Thumbs.db
 # Signing Keys
 *.jks
 *.keystore
+
+# Build Outputs & Temp Artifacts
+dist-apk/
+*.apk
+job_log_live.txt
