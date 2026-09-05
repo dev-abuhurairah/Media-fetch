@@ -19,6 +19,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private data class DownloadPrefs(
+    val isWifiOnly: Boolean,
+    val maxConcurrent: Int,
+    val warnMobile: Boolean,
+    val theme: String
+)
+
+private data class SystemPrefs(
+    val dynamicColor: Boolean,
+    val clipboard: Boolean,
+    val analytics: Boolean
+)
+
 data class SettingsUiState(
     val isWifiOnly: Boolean = false,
     val maxConcurrentDownloads: Int = 3,
@@ -46,25 +59,37 @@ class SettingsViewModel @Inject constructor(
         refreshCacheSize()
     }
 
-    val uiState: StateFlow<SettingsUiState> = combine(
+    private val _downloadPrefs = combine(
         securityPreferences.isWifiOnly,
         securityPreferences.maxConcurrentDownloads,
         securityPreferences.warnMobileData,
-        securityPreferences.themeMode,
+        securityPreferences.themeMode
+    ) { wifi, maxConcurrent, warnMobile, theme ->
+        DownloadPrefs(wifi, maxConcurrent, warnMobile, theme)
+    }
+
+    private val _systemPrefs = combine(
         securityPreferences.isDynamicColorEnabled,
         securityPreferences.isClipboardDetectionEnabled,
-        securityPreferences.isAnalyticsOptedOut,
+        securityPreferences.isAnalyticsOptedOut
+    ) { dynamicColor, clipboard, analytics ->
+        SystemPrefs(dynamicColor, clipboard, analytics)
+    }
+
+    val uiState: StateFlow<SettingsUiState> = combine(
+        _downloadPrefs,
+        _systemPrefs,
         mediaLibraryDao.getTotalLibrarySizeBytes(),
         _cacheSize
-    ) { wifi, maxConcurrent, warnMobile, theme, dynamicColor, clipboard, analytics, librarySize, cacheSize ->
+    ) { download, system, librarySize, cacheSize ->
         SettingsUiState(
-            isWifiOnly = wifi,
-            maxConcurrentDownloads = maxConcurrent,
-            warnMobileData = warnMobile,
-            themeMode = theme,
-            isDynamicColorEnabled = dynamicColor,
-            isClipboardDetectionEnabled = clipboard,
-            isAnalyticsOptedOut = analytics,
+            isWifiOnly = download.isWifiOnly,
+            maxConcurrentDownloads = download.maxConcurrent,
+            warnMobileData = download.warnMobile,
+            themeMode = download.theme,
+            isDynamicColorEnabled = system.dynamicColor,
+            isClipboardDetectionEnabled = system.clipboard,
+            isAnalyticsOptedOut = system.analytics,
             librarySizeBytes = librarySize ?: 0L,
             cacheSizeBytes = cacheSize
         )

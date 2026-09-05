@@ -24,6 +24,13 @@ enum class LibrarySort {
     SIZE_DESC
 }
 
+private data class ViewFilters(
+    val category: MediaType?,
+    val query: String,
+    val sort: LibrarySort,
+    val isGrid: Boolean
+)
+
 data class LibraryUiState(
     val items: List<MediaLibraryEntity> = emptyList(),
     val selectedCategory: MediaType? = null, // null = All
@@ -46,27 +53,33 @@ class LibraryViewModel @Inject constructor(
     private val _isGridView = MutableStateFlow(true)
     private val _selectedItemIds = MutableStateFlow<Set<String>>(emptySet())
 
-    val uiState: StateFlow<LibraryUiState> = combine(
-        mediaLibraryDao.getAllLibraryItems(),
+    private val _filters = combine(
         _selectedCategory,
         _searchQuery,
         _sortOrder,
-        _isGridView,
+        _isGridView
+    ) { category, query, sort, isGrid ->
+        ViewFilters(category, query, sort, isGrid)
+    }
+
+    val uiState: StateFlow<LibraryUiState> = combine(
+        mediaLibraryDao.getAllLibraryItems(),
+        _filters,
         _selectedItemIds
-    ) { rawItems, category, query, sort, isGrid, selectedIds ->
+    ) { rawItems, filters, selectedIds ->
         var filtered = rawItems
 
-        if (category != null) {
-            filtered = filtered.filter { it.mediaType == category }
+        if (filters.category != null) {
+            filtered = filtered.filter { it.mediaType == filters.category }
         }
 
-        if (query.isNotBlank()) {
+        if (filters.query.isNotBlank()) {
             filtered = filtered.filter {
-                it.title.contains(query, ignoreCase = true) || it.author.contains(query, ignoreCase = true)
+                it.title.contains(filters.query, ignoreCase = true) || it.author.contains(filters.query, ignoreCase = true)
             }
         }
 
-        val sorted = when (sort) {
+        val sorted = when (filters.sort) {
             LibrarySort.DATE_DESC -> filtered.sortedByDescending { it.addedAt }
             LibrarySort.DATE_ASC -> filtered.sortedBy { it.addedAt }
             LibrarySort.NAME_ASC -> filtered.sortedBy { it.title.lowercase() }
@@ -75,10 +88,10 @@ class LibraryViewModel @Inject constructor(
 
         LibraryUiState(
             items = sorted,
-            selectedCategory = category,
-            searchQuery = query,
-            sortOrder = sort,
-            isGridView = isGrid,
+            selectedCategory = filters.category,
+            searchQuery = filters.query,
+            sortOrder = filters.sort,
+            isGridView = filters.isGrid,
             selectedItemIds = selectedIds,
             isSelectionMode = selectedIds.isNotEmpty()
         )
