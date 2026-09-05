@@ -129,7 +129,10 @@ class DownloadManager @Inject constructor(
         )
 
         try {
-            val requestBuilder = Request.Builder().url(targetUrl)
+            val requestBuilder = Request.Builder()
+                .url(targetUrl)
+                .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36")
+                .header("Accept", "*/*")
             if (downloadedBytes > 0) {
                 requestBuilder.header("Range", "bytes=$downloadedBytes-")
             }
@@ -150,6 +153,21 @@ class DownloadManager @Inject constructor(
             }
 
             val responseBody = response.body ?: throw IllegalStateException("Empty response body")
+            val contentType = response.header("Content-Type").orEmpty()
+            if (contentType.contains("text/html", ignoreCase = true) && !item.selectedFormat.mimeType.contains("html", ignoreCase = true)) {
+                downloadDao.updateProgress(
+                    id = item.id,
+                    state = DownloadState.FAILED,
+                    progress = 0f,
+                    downloaded = downloadedBytes,
+                    total = item.totalBytes,
+                    speed = 0L,
+                    eta = 0L,
+                    updatedAt = System.currentTimeMillis()
+                )
+                return@withContext
+            }
+
             val contentLength = responseBody.contentLength()
             val totalBytes = if (response.code == 206) contentLength + downloadedBytes else contentLength
             val effectiveTotal = if (totalBytes > 0) totalBytes else item.totalBytes

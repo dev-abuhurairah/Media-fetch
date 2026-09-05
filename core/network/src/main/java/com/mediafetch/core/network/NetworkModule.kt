@@ -36,11 +36,14 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
+            .followRedirects(true)
+            .followSslRedirects(true)
             .addInterceptor { chain ->
                 val originalRequest = chain.request()
                 val requestWithHeaders = originalRequest.newBuilder()
-                    .header("User-Agent", "MediaFetch-Android/1.0.0 (Linux; Android 14; Mobile)")
-                    .header("Accept", "application/json, text/plain, */*")
+                    .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36")
+                    .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,application/json,*/*;q=0.8")
+                    .header("Accept-Language", "en-US,en;q=0.9")
                     .build()
                 chain.proceed(requestWithHeaders)
             }
