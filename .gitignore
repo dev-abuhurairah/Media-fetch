@@ -1,0 +1,26 @@
+# Gradle
+.gradle/
+build/
+*/build/
+
+# Android Studio & IntelliJ
+.idea/
+*.iml
+.navigation/
+captures/
+local.properties
+.externalNativeBuild
+.cxx/
+
+# Node Backend
+backend/node_modules/
+backend/dist/
+backend/.env
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Signing Keys
+*.jks
+*.keystore
